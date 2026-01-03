@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>For You ❤️</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    font-family:'Segoe UI',sans-serif;
+    overflow-x:hidden;
+    color:#fff;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+}
+
+button,input{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+}
+
+button{
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+/* Fix for mobile viewport height */
+body,html{
+    height:100%;
+    width:100%;
+    -webkit-overflow-scrolling:touch;
+}
+
+body{
+    min-height:100vh;
+    min-height:-webkit-fill-available;
+}
+
+/* Animated background */
+.bg-animation{
+    position:fixed;
+    width:100%;
+    height:100%;
+    z-index:0;
+    overflow:hidden;
+}
+
+.particle{
+    position:absolute;
+    width:4px;
+    height:4px;
+    background:rgba(255,255,255,0.6);
+    border-radius:50%;
+    animation:float 15s infinite;
+}
+
+@keyframes float{
+    0%,100%{transform:translateY(0) translateX(0);opacity:0;}
+    10%{opacity:1;}
+    90%{opacity:1;}
+    100%{transform:translateY(-100vh) translateX(100px);}
+}
+
+/* Lock Screen */
+#lock{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.95);
+    backdrop-filter:blur(10px);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+    animation:fadeIn 0.5s;
+}
+
+@keyframes fadeIn{from{opacity:0;}}
+
+.lock-content{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(20px);
+    padding:50px 40px;
+    border-radius:30px;
+    border:2px solid rgba(255,255,255,0.2);
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+
+.lock-icon{
+    font-size:4em;
+    margin-bottom:20px;
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+}
+
+.lock-content h2{
+    font-size:1.8em;
+    margin-bottom:20px;
+    background:linear-gradient(45deg,#ff6b9d,#feca57);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+input{
+    padding:15px 20px;
+    font-size:1.1em;
+    border-radius:15px;
+    border:2px solid rgba(255,255,255,0.3);
+    background:rgba(255,255,255,0.1);
+    color:white;
+    width:280px;
+    margin:10px 0;
+    transition:all 0.3s;
+}
+
+input:focus{
+    outline:none;
+    border-color:#ff6b9d;
+    background:rgba(255,255,255,0.2);
+}
+
+input::placeholder{color:rgba(255,255,255,0.6);}
+
+button{
+    padding:15px 40px;
+    border:none;
+    border-radius:25px;
+    font-size:1.1em;
+    margin:15px 5px;
+    cursor:pointer;
+    transition:all 0.3s;
+    font-weight:600;
+}
+
+.unlock-btn{
+    background:linear-gradient(45deg,#ff6b9d,#c44569);
+    color:white;
+    box-shadow:0 10px 30px rgba(255,107,157,0.4);
+}
+
+.unlock-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 15px 40px rgba(255,107,157,0.6);
+}
+
+/* Main Container */
+.container{
+    position:relative;
+    z-index:1;
+    max-width:900px;
+    margin:0 auto;
+    padding:40px 20px;
+    text-align:center;
+}
+
+.hidden{display:none!important;}
+
+/* Header */
+.header{
+    margin-bottom:40px;
+    animation:slideDown 1s;
+}
+
+@keyframes slideDown{
+    from{opacity:0;transform:translateY(-50px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.header h1{
+    font-size:3em;
+    margin-bottom:10px;
+    text-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Story Section */
+.story-section{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(20px);
+    padding:40px;
+    border-radius:30px;
+    margin:30px 0;
+    border:2px solid rgba(255,255,255,0.2);
+    box-shadow:0 20px 60px rgba(0,0,0,0.2);
+}
+
+.story-line{
+    font-size:1.4em;
+    line-height:1.8;
+    margin:20px 0;
+    opacity:0;
+    animation:fadeInUp 1s forwards;
+}
+
+@keyframes fadeInUp{
+    from{opacity:0;transform:translateY(30px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+/* Photo Gallery */
+.photo-gallery{
+    margin:40px 0;
+    position:relative;
+    height:400px;
+}
+
+.photo-container{
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    opacity:0;
+    transition:opacity 1s;
+}
+
+.photo-container.active{opacity:1;}
+
+.photo{
+    max-width:320px;
+    max-height:380px;
+    border-radius:25px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    border:5px solid rgba(255,255,255,0.3);
+    filter:blur(20px);
+    transition:all 2s ease;
+    object-fit:cover;
+}
+
+.photo.show{filter:blur(0);transform:scale(1.02);}
+
+.gallery-dots{
+    margin-top:420px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+.dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.4);
+    cursor:pointer;
+    transition:all 0.3s;
+}
+
+.dot.active{
+    background:#ff6b9d;
+    width:30px;
+    border-radius:6px;
+}
+
+/* Memory Timeline */
+.timeline{
+    margin:50px 0;
+    padding:30px;
+}
+
+.memory{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    padding:25px;
+    border-radius:20px;
+    margin:20px 0;
+    border-left:4px solid #ff6b9d;
+    opacity:0;
+    animation:slideInLeft 1s forwards;
+}
+
+@keyframes slideInLeft{
+    from{opacity:0;transform:translateX(-50px);}
+    to{opacity:1;transform:translateX(0);}
+}
+
+.memory-date{
+    color:#feca57;
+    font-weight:600;
+    font-size:0.9em;
+}
+
+.memory-text{
+    margin-top:10px;
+    font-size:1.1em;
+}
+
+/* Proposal Section */
+.proposal{
+    margin:50px 0;
+    padding:40px;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(20px);
+    border-radius:30px;
+    border:2px solid rgba(255,255,255,0.2);
+}
+
+.proposal h2{
+    font-size:2.5em;
+    margin-bottom:30px;
+    animation:heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat{
+    0%,100%{transform:scale(1);}
+    10%,30%{transform:scale(1.1);}
+    20%,40%{transform:scale(1);}
+}
+
+.button-group{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-top:30px;
+    position:relative;
+    min-height:150px;
+    align-items:center;
+}
+
+.yes-btn{
+    background:linear-gradient(45deg,#ff6b9d,#c44569);
+    color:white;
+    box-shadow:0 10px 30px rgba(255,107,157,0.4);
+    position:relative;
+    overflow:hidden;
+}
+
+.yes-btn:before{
+    content:'';
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:0;
+    height:0;
+    background:rgba(255,255,255,0.3);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    transition:width 0.6s,height 0.6s;
+}
+
+.yes-btn:hover:before{
+    width:300px;
+    height:300px;
+}
+
+.no-btn{
+    background:rgba(255,255,255,0.2);
+    color:white;
+    position:relative;
+    transition:all 0.3s;
+}
+
+@media(max-width:768px){
+    .no-btn{
+        transition:transform 0.3s ease;
+    }
+}
+
+.no-btn:hover{
+    background:rgba(255,255,255,0.3);
+}
+
+/* Confetti */
+.confetti{
+    position:fixed;
+    width:10px;
+    height:10px;
+    top:-10px;
+    z-index:999;
+    animation:confettiFall 3s linear forwards;
+}
+
+@keyframes confettiFall{
+    to{
+        transform:translateY(100vh) rotate(360deg);
+        opacity:0;
+    }
+}
+
+/* Success Screen */
+.success-screen{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:2000;
+    text-align:center;
+    padding:20px;
+}
+
+.success-screen h1{
+    font-size:3.5em;
+    margin:20px 0;
+    animation:zoomIn 1s;
+}
+
+@keyframes zoomIn{
+    from{transform:scale(0);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
+
+.success-icon{
+    font-size:8em;
+    animation:bounce 2s infinite;
+}
+
+@keyframes bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-30px);}
+}
+
+/* Share Section */
+.share-section{
+    margin-top:40px;
+    padding:30px;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(10px);
+    border-radius:20px;
+}
+
+.share-btn{
+    background:linear-gradient(45deg,#25D366,#128C7E);
+    color:white;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:15px 30px;
+    border-radius:25px;
+    text-decoration:none;
+    font-weight:600;
+    transition:all 0.3s;
+    box-shadow:0 10px 30px rgba(37,211,102,0.3);
+}
+
+.share-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 40px rgba(37,211,102,0.5);
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .lock-content{
+        padding:30px 20px;
+        width:90%;
+        max-width:350px;
+    }
+    
+    .lock-content h2{
+        font-size:1.4em;
+    }
+    
+    .lock-icon{
+        font-size:3em;
+    }
+    
+    input{
+        width:100%;
+        font-size:16px;
+        padding:12px 15px;
+    }
+    
+    .unlock-btn{
+        width:100%;
+        padding:12px 20px;
+    }
+    
+    .container{
+        padding:20px 15px;
+    }
+    
+    .header h1{
+        font-size:2em;
+        line-height:1.3;
+    }
+    
+    .story-section{
+        padding:25px 20px;
+        margin:20px 0;
+    }
+    
+    .story-line{
+        font-size:1.1em;
+        line-height:1.6;
+    }
+    
+    .photo{
+        max-width:280px;
+        max-height:320px;
+        width:90%;
+    }
+    
+    .photo-gallery{
+        height:360px;
+    }
+    
+    .gallery-dots{
+        margin-top:380px;
+    }
+    
+    .timeline{
+        padding:20px 10px;
+    }
+    
+    .memory{
+        padding:20px 15px;
+    }
+    
+    .memory-text{
+        font-size:1em;
+    }
+    
+    .proposal{
+        padding:25px 20px;
+    }
+    
+    .proposal h2{
+        font-size:1.8em;
+        line-height:1.3;
+    }
+    
+    .proposal p{
+        font-size:1em!important;
+    }
+    
+    .button-group{
+        flex-direction:column;
+        gap:15px;
+        min-height:180px;
+    }
+    
+    button{
+        width:100%;
+        max-width:280px;
+        padding:14px 25px;
+        font-size:1em;
+    }
+    
+    .share-section{
+        padding:20px 15px;
+    }
+    
+    .share-btn{
+        width:100%;
+        max-width:280px;
+        justify-content:center;
+    }
+    
+    .success-screen h1{
+        font-size:2em;
+        padding:0 20px;
+    }
+    
+    .success-screen p{
+        font-size:1em!important;
+        padding:0 20px;
+    }
+    
+    .success-icon{
+        font-size:5em;
+    }
+}
+
+@media(max-width:480px){
+    .lock-content{
+        padding:25px 15px;
+        margin:0 10px;
+    }
+    
+    .lock-content h2{
+        font-size:1.2em;
+    }
+    
+    .lock-content p{
+        font-size:0.9em;
+    }
+    
+    input{
+        font-size:16px;
+    }
+    
+    .header h1{
+        font-size:1.6em;
+    }
+    
+    .story-line{
+        font-size:1em;
+    }
+    
+    .photo{
+        max-width:240px;
+        max-height:280px;
+    }
+    
+    .photo-gallery{
+        height:320px;
+    }
+    
+    .gallery-dots{
+        margin-top:340px;
+    }
+    
+    .proposal h2{
+        font-size:1.5em;
+    }
+    
+    .button-group{
+        min-height:160px;
+    }
+    
+    .success-screen h1{
+        font-size:1.6em;
+    }
+}
+
+@media(hover:none) and (pointer:coarse){
+    /* Touch device specific */
+    .no-btn:hover{
+        background:rgba(255,255,255,0.2);
+        transform:none;
+    }
+    
+    button{
+        -webkit-tap-highlight-color:transparent;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background Animation -->
+<div class="bg-animation" id="bgAnim"></div>
+
+<!-- Lock Screen -->
+<div id="lock">
+    <div class="lock-content">
+        <div class="lock-icon">🔐</div>
+        <h2>Enter the Secret Code</h2>
+        <p style="opacity:0.8;margin-bottom:20px;">Only someone special knows this...</p>
+        <input id="pass" type="password" placeholder="Enter password">
+        <br>
+        <button class="unlock-btn" onclick="unlock()">Unlock 💝</button>
+    </div>
+</div>
+
+<!-- Background Music -->
+<audio id="bgm" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Main Content -->
+<div class="container hidden" id="main">
+    
+    <!-- Header -->
+    <div class="header">
+        <h1>Hey <span id="name"></span> 💫</h1>
+    </div>
+
+    <!-- Story Section -->
+    <div class="story-section" id="story">
+        <div class="story-line" style="animation-delay:0.5s;">
+            Every story has a beginning... ✨
+        </div>
+        <div class="story-line hidden" style="animation-delay:1s;" id="line2">
+            Ours started the moment I saw you... 💭
+        </div>
+        <div class="story-line hidden" style="animation-delay:1.5s;" id="line3">
+            And every day since has been magical 🌟
+        </div>
+        <div class="story-line hidden" style="animation-delay:2s;" id="line4">
+            You make my world brighter just by being in it 🌈
+        </div>
+    </div>
+
+    <!-- Photo Gallery -->
+    <!-- <div class="photo-gallery hidden" id="gallery">
+        <div class="photo-container active" id="photo1">
+            <img src="her.jpg" class="photo" id="pic1">
+        </div>
+        <div class="gallery-dots" id="dots"></div>
+    </div> -->
+
+    <!-- Memory Timeline -->
+    <div class="timeline hidden" id="timeline">
+        <h2 style="margin-bottom:30px;">Our Beautiful Moments 💕</h2>
+        <div class="memory" style="animation-delay:0.2s;">
+            <div class="memory-date">📅 The First Time</div>
+            <div class="memory-text">When I first saw you, time stopped ⏰</div>
+        </div>
+        <div class="memory" style="animation-delay:0.4s;">
+            <div class="memory-date">💬 Our First Conversation</div>
+            <div class="memory-text">Your voice became my favorite sound 🎵</div>
+        </div>
+        <div class="memory" style="animation-delay:0.6s;">
+            <div class="memory-date">😊 Every Day After</div>
+            <div class="memory-text">You made me believe in magic again ✨</div>
+        </div>
+        <div class="memory" style="animation-delay:0.8s;">
+            <div class="memory-date">💝 Right Now</div>
+            <div class="memory-text">Taking a chance to tell you how I feel...</div>
+        </div>
+    </div>
+
+    <!-- Proposal -->
+    <div class="proposal hidden" id="proposal">
+        <h2>Will You Be Mine? 💖</h2>
+        <p style="font-size:1.2em;margin:20px 0;opacity:0.9;">
+            I promise to make you smile every single day 🌸
+        </p>
+        <div class="button-group">
+            <button class="yes-btn" onclick="yes()">Yes! 🥰</button>
+            <button class="no-btn" id="noBtn" onclick="no()">Maybe... 🙈</button>
+        </div>
+
+        <!-- Share -->
+        <div class="share-section">
+            <p style="margin-bottom:15px;">Share this special moment 💫</p>
+            <a href="#" class="share-btn" onclick="share();return false;">
+                <span style="font-size:1.5em;">💬</span> Share on WhatsApp
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Configuration
+const herName="Senior Apuuuu 🥹🫶";
+const password="iloveyou";
+
+document.getElementById("name").innerText=herName;
+
+// Fix mobile viewport height (especially iOS Safari)
+function setVH(){
+    let vh=window.innerHeight*0.01;
+    document.documentElement.style.setProperty('--vh',`${vh}px`);
+}
+setVH();
+window.addEventListener('resize',setVH);
+window.addEventListener('orientationchange',setVH);
+
+// Create animated background particles
+function createParticles(){
+    const bg=document.getElementById("bgAnim");
+    const isMobile=window.innerWidth<=768;
+    const particleCount=isMobile?20:50; // Less particles on mobile
+    
+    for(let i=0;i<particleCount;i++){
+        const p=document.createElement("div");
+        p.className="particle";
+        p.style.left=Math.random()*100+"%";
+        p.style.animationDelay=Math.random()*15+"s";
+        p.style.animationDuration=(10+Math.random()*10)+"s";
+        bg.appendChild(p);
+    }
+}
+createParticles();
+
+// Password unlock
+function unlock(){
+    const input=document.getElementById("pass").value;
+    if(input===password){
+        document.getElementById("lock").style.display="none";
+        document.getElementById("main").classList.remove("hidden");
+        
+        // Try fullscreen (works better on desktop)
+        if(document.documentElement.requestFullscreen && window.innerWidth>768){
+            document.documentElement.requestFullscreen().catch(()=>{});
+        }
+        
+        // Play audio (may require user interaction on mobile)
+        const audio=document.getElementById("bgm");
+        audio.play().catch(()=>{
+            // Silent fail - many mobile browsers block autoplay
+        });
+        
+        startExperience();
+    }else{
+        const lockContent=document.querySelector(".lock-content");
+        lockContent.style.animation="shake 0.5s";
+        setTimeout(()=>lockContent.style.animation="",500);
+        alert("Wrong password 💔 Try again!");
+    }
+}
+
+// Shake animation
+const style=document.createElement("style");
+style.textContent=`
+@keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-10px);}
+    75%{transform:translateX(10px);}
+}`;
+document.head.appendChild(style);
+
+// Enter key support
+document.getElementById("pass").addEventListener("keypress",e=>{
+    if(e.key==="Enter")unlock();
+});
+
+// Start experience
+function startExperience(){
+    // Show story lines
+    setTimeout(()=>document.getElementById("line2").classList.remove("hidden"),3000);
+    setTimeout(()=>document.getElementById("line3").classList.remove("hidden"),6000);
+    setTimeout(()=>document.getElementById("line4").classList.remove("hidden"),9000);
+    
+    // Show gallery
+    setTimeout(()=>{
+        document.getElementById("gallery").classList.remove("hidden");
+        setTimeout(()=>{
+            document.getElementById("pic1").classList.add("show");
+        },500);
+    },12000);
+    
+    // Show timeline
+    setTimeout(()=>document.getElementById("timeline").classList.remove("hidden"),16000);
+    
+    // Show proposal
+    setTimeout(()=>document.getElementById("proposal").classList.remove("hidden"),20000);
+}
+
+// No button moves away (playful feature)
+let noClickCount=0;
+const noBtn=document.getElementById("noBtn");
+
+// Check if device supports hover (desktop)
+const hasHover=window.matchMedia("(hover:hover)").matches;
+
+if(hasHover){
+    // Desktop: move on hover
+    noBtn.addEventListener("mouseenter",function(){
+        if(noClickCount<3){
+            const x=Math.random()*200-100;
+            const y=Math.random()*200-100;
+            this.style.transform=`translate(${x}px,${y}px)`;
+        }
+    });
+}else{
+    // Mobile: move on touch attempt
+    noBtn.addEventListener("touchstart",function(e){
+        if(noClickCount<3){
+            e.preventDefault();
+            // Calculate safe movement area
+            const buttonRect=this.getBoundingClientRect();
+            const parentRect=this.parentElement.getBoundingClientRect();
+            const maxX=(parentRect.width-buttonRect.width)/2-20;
+            const maxY=50;
+            const x=(Math.random()-0.5)*Math.min(maxX,100);
+            const y=(Math.random()-0.5)*Math.min(maxY,60);
+            this.style.transform=`translate(${x}px,${y}px)`;
+            this.style.transition="transform 0.3s ease";
+        }
+    });
+}
+
+function no(){
+    noClickCount++;
+    const messages=[
+        "Please think again 🥺",
+        "Are you sure? 💔",
+        "Give me a chance? 🙏",
+        "I'll make you the happiest! 💝"
+    ];
+    if(noClickCount<=3){
+        alert(messages[noClickCount-1]);
+    }else{
+        alert("The 'No' button is tired of running away 😅 How about a 'Yes'? 💕");
+        noBtn.innerText="Pretty Please? 🥹";
+    }
+}
+
+// Yes button - celebration
+function yes(){
+    const isMobile=window.innerWidth<=768;
+    const confettiCount=isMobile?80:150; // Less confetti on mobile
+    
+    // Create confetti
+    for(let i=0;i<confettiCount;i++){
+        setTimeout(()=>{
+            const c=document.createElement("div");
+            c.className="confetti";
+            c.style.left=Math.random()*100+"%";
+            c.style.background=["#ff6b9d","#feca57","#48dbfb","#ff9ff3","#54a0ff"][Math.floor(Math.random()*5)];
+            c.style.animationDelay=Math.random()*0.5+"s";
+            document.body.appendChild(c);
+            setTimeout(()=>c.remove(),3000);
+        },i*20);
+    }
+    
+    // Show success screen
+    setTimeout(()=>{
+        const success=document.createElement("div");
+        success.className="success-screen";
+        success.innerHTML=`
+            <div class="success-icon">💝</div>
+            <h1>You Made Me The Happiest! 🥹</h1>
+            <p style="font-size:1.3em;margin:20px;opacity:0.9;">
+                This is just the beginning of our beautiful journey together ✨
+            </p>
+            <p style="font-size:3em;margin:20px;">💑</p>
+            <p style="font-size:1.2em;opacity:0.8;">
+                I promise to cherish every moment with you 💖
+            </p>
+        `;
+        document.body.appendChild(success);
+        
+        // Play celebration sound (if available)
+        document.getElementById("bgm").volume=0.3;
+    },1000);
+}
+
+// WhatsApp share
+function share(){
+    const msg=`✨ Someone created something magical for you! 💖 Check out this beautiful surprise! 🌟`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+
+// Floating hearts
+const isMobile=window.innerWidth<=768;
+const heartInterval=isMobile?1500:1000; // Slower on mobile
+
+setInterval(()=>{
+    const h=document.createElement("div");
+    h.style.position="fixed";
+    h.style.fontSize=Math.random()*20+15+"px";
+    h.style.left=Math.random()*100+"%";
+    h.style.bottom="-50px";
+    h.style.zIndex="0";
+    h.innerText=["❤️","💕","💖","💝","💗","🌸","🌺","⭐"][Math.floor(Math.random()*8)];
+    h.style.animation="float 8s linear forwards";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),8000);
+},heartInterval);
+</script>
+
+</body>
+</html>
